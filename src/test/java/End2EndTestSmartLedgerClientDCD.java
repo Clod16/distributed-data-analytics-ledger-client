@@ -1,6 +1,7 @@
 /**
  * @author ascatox
- */
+ *//*
+
 
 import eng.faredge.ledger.client.base.DDALedgerClient;
 import eu.faredge.dm.dcd.DCD;
@@ -94,46 +95,6 @@ public class End2EndTestSmartLedgerClientDCD {
     }
 
 
-    @Test
-    public void testRemoveDCD() {
-        try {
-            DCD dcd = doRegisterDCD();
-            doRemoveDCD(dcd);
-            DCD dcdBack = null;
-            try {
-                dcdBack = client.getDataChannelDescriptorById(dcd.getId());
-            } catch (JLedgerClientException e) {
-                assertFalse(e.getMessage(), true);
-            } catch (Exception e) {
-                assertFalse(e.getMessage(), true); e.printStackTrace();
-            }
-            assertTrue(null == dcdBack.getId() || dcdBack.getId().isEmpty());
-        } catch (JLedgerClientException e) {
-            assertFalse(e.getMessage(), true);
-        } catch (DatatypeConfigurationException e) {
-            assertFalse(e.getMessage(), true);
-        }
-    }
-
-    public static DCD init() throws JLedgerClientException, DatatypeConfigurationException {
-        Random random = new Random();
-        DCD dcd = new DCD();
-        GregorianCalendar now = new GregorianCalendar();
-        XMLGregorianCalendar validFromNow = DatatypeFactory.newInstance().newXMLGregorianCalendar(now);
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.add(Calendar.HOUR, 1);
-        XMLGregorianCalendar expiration = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-        dcd.setValidFrom(validFromNow);
-        dcd.setExpirationDateTime(expiration);
-        dcd.setId(new String());
-        DCM dcm = doRegisterDCM();
-        dcd.setDataConsumerManifestID(dcm.getId());
-        dcmsToRemove.add(dcm);
-        DSM dsm = doRegisterDSM();
-        dcd.setDataSourceManifestID(dsm.getId());
-        dsmsToRemove.add(dsm);
-        return dcd;
-    }
 
     private DCD doRegisterDCD() throws DatatypeConfigurationException, JLedgerClientException {
         DCD dcd = init();
@@ -210,3 +171,4 @@ public class End2EndTestSmartLedgerClientDCD {
 
 
 }
+*/

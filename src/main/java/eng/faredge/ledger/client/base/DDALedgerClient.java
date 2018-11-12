@@ -152,7 +152,7 @@ public class DDALedgerClient extends HLFLedgerClient implements LedgerClient {
         final DSM payload = (DSM) doQuery(Function.getDataSourceManifestByMacAddress.toString(), args);
         //List<DSM> dsms = Utils.extractDSMFromPayloads(payloads);
         if (payload == null) {
-            log.warn("No DSM retrieved from getDataSourceManifestByUri with URI: '" + id + "'");
+            log.warn("No DSM retrieved from getDataSourceManifestByUri with URI: '" + macAddress + "'");
             return new DSM();
         }
         return payload;
@@ -166,36 +166,24 @@ public class DDALedgerClient extends HLFLedgerClient implements LedgerClient {
                     "cannot be empty");
         List<String> args = new ArrayList<>();
         args.add(dsdId);
-        final List<String[]> payloads = (List<String[]>) doQuery(Function.getDataSourceManifestByDSD.toString(), args);
-        List<DSM> dsms = Utils.extractDSMFromPayloads(payloads);
-        if (dsms.isEmpty()) {
-            log.warn("No DSM retrieved from getDataSourceManifestByDSD with DSDid: '" + dsdId + "'");
+        final DSM payload = (DSM) doQuery(Function.getDataSourceManifestByDSD.toString(), args);
+        //List<DSM> dsms = Utils.extractDSMFromPayloads(payloads);
+        if (payload == null) {
+            log.warn("No DSM retrieved from getDataSourceManifestByUri with URI: '" + dsdId + "'");
             return new DSM();
         }
-        return dsms.get(0);
+        return payload;
     }
 
     @Override
     public List<DCD> getAllDataChannelDescriptors() throws JLedgerClientException {
         List<String> args = new ArrayList<>();
-        final List<String[]> payloads = (List<String[]>) doQuery(Function.getAllDataChannelDescriptors.toString(), args);
-        return Utils.extractDCDFromPayloads(payloads);    }
+        //final List<DCD> payloads =  doQuery(Function.getAllDataChannelDescriptors.toString(), args);
+        return null;    }
 
     @Override
     public DCM getDataConsumerManifestByMacAddress(String macAddress) throws JLedgerClientException {
-        if (StringUtils.isEmpty(macAddress))
-            throw new IllegalArgumentException("Error in method getDataConsumerManifestByMacAddress " +
-                    "macAddress " +
-                    "cannot be empty");
-        String[] args = {macAddress};
-        final List<String[]> payloads = (List<String[]>) doQuery(Function.getDataConsumerManifestByMacAddress.toString(), Arrays.asList(args));
-        List<DCM> dcms = Utils.extractDCMFromPayloads(payloads);
-
-        if (dcms.isEmpty()) {
-            log.warn("No DSM retrieved from getDataSourceManifestByUri with MAC Address: '" + macAddress + "'");
-            return new DCM();
-        }
-        return dcms.get(0);    }
+      return null;  }
 
     @Override
     public DCM getDataConsumerManifestById(String id) throws JLedgerClientException {

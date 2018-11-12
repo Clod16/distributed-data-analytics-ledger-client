@@ -1,14 +1,11 @@
 /**
  * @author ascatox
  */
-
+/*
 import com.fasterxml.jackson.core.JsonProcessingException;
 import eng.faredge.ledger.client.base.DDALedgerClient;
 import eu.faredge.dm.dcm.DCM;
 import eu.faredge.dm.dsm.DSM;
-import eu.faredge.smartledger.client.base.ISmartLedgerClient;
-import eu.faredge.smartledger.client.exception.SmartLedgerClientException;
-import eu.faredge.smartledger.client.utils.Utils;
 import it.eng.jledgerclient.exception.JLedgerClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -162,7 +159,7 @@ public class End2EndTestSmartLedgerClientDCM {
         dcm.getDataSourceDefinitionsIDs().add(dsm.getDataSourceDefinitionID());
         DSM dsmOne = doRegisterDSM();
     /*    Decommentare per fare test con un DCM con una lista di DSD composta da due elementi (invece di uno soltanto)*/
-    /*    dcm.getDataSourceDefinitionsIDs().add(dsmOne.getDataSourceDefinitionID()); */
+    /*    dcm.getDataSourceDefinitionsIDs().add(dsmOne.getDataSourceDefinitionID());
         dsmsToRemove.add(dsm);
         dsmsToRemove.add(dsmOne);
         return dcm;
@@ -213,3 +210,4 @@ public class End2EndTestSmartLedgerClientDCM {
 
 
 }
+*/
