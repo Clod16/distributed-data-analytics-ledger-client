@@ -1,5 +1,7 @@
 package eng.faredge.ledger.client.base;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.faredge.dm.dcd.DCD;
 import eu.faredge.dm.dcm.DCM;
 import eu.faredge.dm.dsm.DSM;
@@ -9,10 +11,13 @@ import it.eng.jledgerclient.fabric.config.ConfigManager;
 import it.eng.jledgerclient.fabric.config.Configuration;
 import it.eng.jledgerclient.fabric.config.Organization;
 import it.eng.jledgerclient.fabric.helper.LedgerInteractionHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hyperledger.fabric.sdk.ChaincodeEventListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DDALedgerClient extends HLFLedgerClient implements LedgerClient {
@@ -50,48 +55,147 @@ public class DDALedgerClient extends HLFLedgerClient implements LedgerClient {
 
     @Override
     public String registerDSM(DSM dsm) throws JLedgerClientException {
-        return null;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(dsm.getDataSourceDefinitionInterfaceParameters());
+        } catch (JsonProcessingException e) {
+            log.error("Error in json conversion!" + e.getMessage());
+        }
+        String id = new String();
+        if (!StringUtils.isEmpty(dsm.getId()))
+            id = dsm.getId();
+        List<String> args = new ArrayList<>();
+        args.add(id);
+        args.add(dsm.getMacAddress());
+        args.add(dsm.getDataSourceDefinitionReferenceID());
+        args.add(json);
+        final String payload = doInvoke(Function.editDSM.toString(), args);
+        log.debug("Payload retrieved: " + payload);
+        return payload;
     }
 
     @Override
     public void editRegisteredDSM(DSM dsm) throws JLedgerClientException {
+        if (StringUtils.isEmpty(dsm.getId())) {
+            log.error("DCM in EDIT don't have id");
+            throw new JLedgerClientException("DCM in EDIT don't have id");
+        }
+        try {
+            DSM dataSourceManifestByID = getDataSourceManifestById(dsm.getId());
+        } catch (Exception e) {
+            throw new JLedgerClientException(e);
+        }
+        registerDSM(dsm);
 
     }
 
     @Override
     public void editRegisteredDCM(DCM dcm) throws JLedgerClientException {
+        if (StringUtils.isEmpty(dcm.getId())) {
+            log.error("DCM in EDIT don't have id");
+            throw new JLedgerClientException("DCM in EDIT don't have id");
+        }
+        try {
+            DCM dataConsumerManifestByID = getDataConsumerManifestById(dcm.getId());
+        } catch (Exception e) {
+            throw new JLedgerClientException(e);
+        }
+
+        registerDCM(dcm);
 
     }
 
     @Override
     public String registerDCM(DCM dcm) throws JLedgerClientException {
-        return null;
+
+        String id = new String();
+        if (!StringUtils.isEmpty(dcm.getId()))
+            id = dcm.getId();
+
+        List<String> args = new ArrayList<>();
+        args.add(id);
+        args.add(dcm.getMacAddress());
+        args.add(dcm.getDataSourceDefinitionReferenceIDs().toString());
+        final String payload = doInvoke(Function.editDCM.toString(), args);
+        log.debug("Payload retrieved: " + payload);
+        return payload;
     }
 
     @Override
     public DSM getDataSourceManifestById(String id) throws JLedgerClientException {
-        return null;
+        if (StringUtils.isEmpty(id))
+            throw new IllegalArgumentException("Error in method getDataSourceManifestById " +
+                    "id " +
+                    "cannot be empty");
+        List<String> arg = new ArrayList<>();
+        arg.add(id);
+        final DSM payload = (DSM) doQuery(Function.getDataSourceManifestById.toString(), arg);
+        //List<DSM> dsms = Utils.extractDSMFromPayloads(payloads);
+        if (payload == null) {
+            log.warn("No DSM retrieved from getDataSourceManifestByUri with URI: '" + id + "'");
+            return new DSM();
+        }
+
+        return payload;
     }
 
     @Override
     public DSM getDataSourceManifestByMacAddress(String macAddress) throws JLedgerClientException {
-        return null;
+        if (StringUtils.isEmpty(macAddress))
+            throw new IllegalArgumentException("Error in method getDataSourceManifestByMacAddress " +
+                    "macAddress " +
+                    "cannot be empty");
+        List<String> args = new ArrayList<>();
+        args.add(macAddress);
+        final DSM payload = (DSM) doQuery(Function.getDataSourceManifestByMacAddress.toString(), args);
+        //List<DSM> dsms = Utils.extractDSMFromPayloads(payloads);
+        if (payload == null) {
+            log.warn("No DSM retrieved from getDataSourceManifestByUri with URI: '" + id + "'");
+            return new DSM();
+        }
+        return payload;
     }
 
     @Override
     public DSM getDataSourceManifestByDSD(String dsdId) throws JLedgerClientException {
-        return null;
+        if (StringUtils.isEmpty(dsdId))
+            throw new IllegalArgumentException("Error in method getDataSourceManifestByDSD " +
+                    "DSD " +
+                    "cannot be empty");
+        List<String> args = new ArrayList<>();
+        args.add(dsdId);
+        final List<String[]> payloads = (List<String[]>) doQuery(Function.getDataSourceManifestByDSD.toString(), args);
+        List<DSM> dsms = Utils.extractDSMFromPayloads(payloads);
+        if (dsms.isEmpty()) {
+            log.warn("No DSM retrieved from getDataSourceManifestByDSD with DSDid: '" + dsdId + "'");
+            return new DSM();
+        }
+        return dsms.get(0);
     }
 
     @Override
     public List<DCD> getAllDataChannelDescriptors() throws JLedgerClientException {
-        return null;
-    }
+        List<String> args = new ArrayList<>();
+        final List<String[]> payloads = (List<String[]>) doQuery(Function.getAllDataChannelDescriptors.toString(), args);
+        return Utils.extractDCDFromPayloads(payloads);    }
 
     @Override
     public DCM getDataConsumerManifestByMacAddress(String macAddress) throws JLedgerClientException {
-        return null;
-    }
+        if (StringUtils.isEmpty(macAddress))
+            throw new IllegalArgumentException("Error in method getDataConsumerManifestByMacAddress " +
+                    "macAddress " +
+                    "cannot be empty");
+        String[] args = {macAddress};
+        final List<String[]> payloads = (List<String[]>) doQuery(Function.getDataConsumerManifestByMacAddress.toString(), Arrays.asList(args));
+        List<DCM> dcms = Utils.extractDCMFromPayloads(payloads);
+
+        if (dcms.isEmpty()) {
+            log.warn("No DSM retrieved from getDataSourceManifestByUri with MAC Address: '" + macAddress + "'");
+            return new DCM();
+        }
+        return dcms.get(0);    }
 
     @Override
     public DCM getDataConsumerManifestById(String id) throws JLedgerClientException {
